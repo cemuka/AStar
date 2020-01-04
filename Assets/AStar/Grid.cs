@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
-    public Transform target;
     public LayerMask unwalkableMask;
     public float nodeRadius;
     public Vector2 gridWorldSize;
@@ -14,8 +13,10 @@ public class Grid : MonoBehaviour
     private float nodeDiameter;
     private int gridSizeX;
     private int gridSizeY;
+    
+    public List<Node> path;
 
-    private void Start() 
+    private void Awake() 
     {
         nodeDiameter = nodeRadius *2;
         gridSizeX = Mathf.RoundToInt(gridWorldSize.x/nodeDiameter);
@@ -35,21 +36,43 @@ public class Grid : MonoBehaviour
                 // if no collider2D is returned by overlap circle, then this node is walkable
 				var walkable = (Physics2D.OverlapCircle(worldPoint,nodeRadius,unwalkableMask) == null);
 
-				grid[x,y] = new Node(walkable,worldPoint);
+				grid[x,y] = new Node(walkable, worldPoint, x, y);
 			}
 		}
 	}
 
-    public Node NodeFromWorldPoint(Vector2 worldPosition) 
+    	public List<Node> GetNeighbours(Node node) {
+		List<Node> neighbours = new List<Node>();
+
+		for (int x = -1; x <= 1; x++) 
+        {
+			for (int y = -1; y <= 1; y++) 
+            {
+				if (x == 0 && y == 0)
+					continue;
+
+				int checkX = node.gridX + x;
+				int checkY = node.gridY + y;
+
+				if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY) {
+					neighbours.Add(grid[checkX,checkY]);
+				}
+			}
+		}
+
+		return neighbours;
+	}
+	
+
+	public Node NodeFromWorldPoint(Vector3 worldPosition) 
     {
-        float percentX = (worldPosition.x - transform.position.x) / gridWorldSize.x + 0.5f - (nodeRadius / gridWorldSize.x);
-        float percentY = (worldPosition.y - transform.position.y) / gridWorldSize.y + 0.5f - (nodeRadius / gridWorldSize.y);
+		float percentX = (worldPosition.x + gridWorldSize.x/2) / gridWorldSize.x;
+		float percentY = (worldPosition.y + gridWorldSize.y/2) / gridWorldSize.y;
 		percentX = Mathf.Clamp01(percentX);
 		percentY = Mathf.Clamp01(percentY);
 
 		int x = Mathf.RoundToInt((gridSizeX-1) * percentX);
 		int y = Mathf.RoundToInt((gridSizeY-1) * percentY);
-
 		return grid[x,y];
 	}
 
@@ -59,31 +82,20 @@ public class Grid : MonoBehaviour
 
         if (grid != null) 
         {
-            var playerNode = NodeFromWorldPoint(target.position);
-
 			foreach (Node n in grid) 
             {
 				Gizmos.color = n.walkable ? Color.white : Color.red;
-
-                if (n.Equals(playerNode))
+                if (path != null)
                 {
-                    Gizmos.color = Color.cyan;
+                    if (path.Contains(n))
+                    {
+                        Gizmos.color = Color.black;
+                    }
                 }
-
 				Gizmos.DrawSphere(n.worldPosition, nodeRadius);
 			}
 		}
     }
 }
 
-public class Node
-{
-    public bool walkable;
-    public Vector2 worldPosition;
 
-    public Node(bool walkable, Vector2 worldPosition)
-    {
-        this.walkable = walkable;
-        this.worldPosition = worldPosition;
-    }
-}
