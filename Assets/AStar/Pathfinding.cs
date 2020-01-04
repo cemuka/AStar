@@ -19,28 +19,19 @@ public class Pathfinding : MonoBehaviour
 		FindPath (seeker.position, target.position);
 	}
 
-	private void FindPath(Vector3 startPos, Vector3 targetPos) 
+	private void FindPath(Vector2 startPos, Vector2 targetPos) 
 	{
 		var startNode  = grid.NodeFromWorldPoint(startPos);
 		var targetNode = grid.NodeFromWorldPoint(targetPos);
 
-		var openSet   = new List<Node>();
+		var openSet   = new Heap<Node>(grid.MaxSize);
 		var closedSet = new HashSet<Node>();
 
 		openSet.Add(startNode);
 
 		while (openSet.Count > 0) 
 		{
-			var currentNode = openSet[0];
-			for (int i = 1; i < openSet.Count; i ++) 
-			{
-				if (openSet[i].fCost < currentNode.fCost || openSet[i].fCost == currentNode.fCost) {
-					if (openSet[i].hCost < currentNode.hCost)
-						currentNode = openSet[i];
-				}
-			}
-
-			openSet.Remove(currentNode);
+			var currentNode = openSet.RemoveFirst();
 			closedSet.Add(currentNode);
 
 			//if target node found, exit from loop

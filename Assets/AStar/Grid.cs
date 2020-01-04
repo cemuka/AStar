@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
+    public bool onlyDisplayPathGizmos;
     public LayerMask unwalkableMask;
     public float nodeRadius;
     public Vector2 gridWorldSize;
@@ -24,6 +25,11 @@ public class Grid : MonoBehaviour
 
         CreateGrid();
     }
+
+    public int MaxSize 
+    {
+		get =>  gridSizeX * gridSizeY;
+	}
 
     private void CreateGrid() 
     {
@@ -80,21 +86,35 @@ public class Grid : MonoBehaviour
     {
         Gizmos.DrawWireCube(transform.position,new Vector2(gridWorldSize.x,gridWorldSize.y));
 
-        if (grid != null) 
+        if (onlyDisplayPathGizmos)
         {
-			foreach (Node n in grid) 
+            if (path != null)
             {
-				Gizmos.color = n.walkable ? Color.white : Color.red;
-                if (path != null)
+                foreach (var n in path)
                 {
-                    if (path.Contains(n))
-                    {
-                        Gizmos.color = Color.black;
-                    }
+                    Gizmos.color = Color.black;
+                    Gizmos.DrawSphere(n.worldPosition, nodeRadius);
                 }
-				Gizmos.DrawSphere(n.worldPosition, nodeRadius);
-			}
-		}
+            }
+        }
+        else
+        {
+            if (grid != null) 
+            {
+                foreach (Node n in grid) 
+                {
+                    Gizmos.color = n.walkable ? Color.white : Color.red;
+                    if (path != null)
+                    {
+                        if (path.Contains(n))
+                        {
+                            Gizmos.color = Color.black;
+                        }
+                    }
+                    Gizmos.DrawSphere(n.worldPosition, nodeRadius);
+                }
+            }
+        }        
     }
 }
 
