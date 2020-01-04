@@ -49,6 +49,8 @@
      <Compile Include="Assets\AStar\Heap.cs" />
      <Compile Include="Assets\AStar\Node.cs" />
      <Compile Include="Assets\AStar\Pathfinding.cs" />
+     <Compile Include="Assets\AStar\PathRequestHandler.cs" />
+     <Compile Include="Assets\AStar\Unit.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>/Users/cemuka/Documents/UnityRepo/AStar/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
